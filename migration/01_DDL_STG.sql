@@ -39,9 +39,9 @@ CREATE TABLE IF NOT EXISTS prod_dv_stg.couriers_system_deliveries(
 	courier_id VARCHAR(24)	NOT NULL,
 	address	VARCHAR(50)	NOT NULL,
 	delivery_ts	TIMESTAMP NOT NULL,
-	rate INT2 NOT NULL DEFAULT 5,
-	sum NUMERIC(14,2) NOT NULL DEFAULT 0,
-	tip_sum NUMERIC(8,2) NOT NULL DEFAULT 0
+	rate INT2 NOT NULL,
+	sum NUMERIC(14,2) NOT NULL,
+	tip_sum NUMERIC(8,2) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS prod_dv_stg.mongo_etl_settings(
