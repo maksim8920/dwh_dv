@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS prod_dv_dds.s_couriers(
 
 CREATE TABLE IF NOT EXISTS prod_dv_dds.s_orders(
 	order_id_dwh INTEGER PRIMARY KEY REFERENCES prod_dv_dds.h_orders(order_id_dwh),
-	order_tip_sum NUMERIC(8,2) NOT NULL CHECK (order_tip_sum >= 0) DEFAULT 0,
+	order_tip_sum NUMERIC(8,2) NULL CHECK (order_tip_sum >= 0) DEFAULT 0,
 	order_rate INT2 NOT NULL CHECK (order_rate BETWEEN 1 AND 5) DEFAULT 5,
 	order_status VARCHAR(9) NOT NULL,
 	order_address VARCHAR(50) NULL,
