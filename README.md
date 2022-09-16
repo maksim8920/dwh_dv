@@ -15,7 +15,9 @@ ETL - Apache Airflow
 - PostgreSQL - данные бонусной системы оплат
 - API - данные курьерской службы
 
-### Документация к проекту:
+### Документация к проекту по ссылке:
+
+https://docs.google.com/spreadsheets/d/16i6dUNz_1p9Mmby5ary2EVFrE_Im0n2gPW3HEpcWADM/edit?usp=sharing
 
 Краткое описание вкладок:
 
