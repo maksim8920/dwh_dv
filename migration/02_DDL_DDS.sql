@@ -95,25 +95,3 @@ CREATE TABLE IF NOT EXISTS prod_dv_dds.s_orders(
 
 CREATE INDEX s_couriers_order_create_ts_idx ON prod_dv_dds.s_orders(order_create_ts);
 CREATE INDEX s_couriers_order_deliviring_ts_idx ON prod_dv_dds.s_orders(order_deliviring_ts);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
