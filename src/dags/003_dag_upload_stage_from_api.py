@@ -21,12 +21,10 @@ postgres_conn = 'PG_WAREHOUSE_CONNECTION'
 
 # params for API
 nickname = 'mpopov'
-cohort = '1'
 api_key = json.loads(api_conn.extra)['api_key']
 base_url = api_conn.host
 
 params = {"X-Nickname" : nickname,
-         'X-Cohort' : cohort,
          'X-API-KEY' : api_key,
          }
 
