@@ -14,6 +14,7 @@ task_logger = logging.getLogger('airflow.task')
 # tz params
 local_tz = pendulum.timezone("Europe/Moscow")
 local_ds = '{{ dag.timezone.convert(execution_date).strftime("%Y-%m-%d") }}'
+prev_local_ds = '{{ dag.timezone.convert(prev_execution_date).strftime("%Y-%m-%d") }}'
 
 # connections
 api_conn = BaseHook.get_connection('http_conn_id')
@@ -57,17 +58,17 @@ def upload_couriers(pg_schema, pg_table_dwh):
     conn.close()
 
 # get data deliveries
-def upload_deliveries(start_date, pg_schema, pg_table_dwh):
+def upload_deliveries(prev_date, today_date, pg_schema, pg_table_dwh):
 
     conn = dwh_hook.get_conn()
     cursor = conn.cursor()
 
     # time interval
-    start = f"{start_date} 00:00:00"
-    end = f"{start_date} 23:59:59"
+    start = f"{prev_date} 00:00:00"
+    end = f"{today_date} 23:59:59"
 
     # idempotency
-    dwh_hook.run(sql = f"DELETE FROM {pg_schema}.{pg_table_dwh} WHERE order_ts::date = '{start_date}'")
+    dwh_hook.run(sql = f"DELETE FROM {pg_schema}.{pg_table_dwh} WHERE order_ts::date BETWEEN '{prev_date}' AND '{today_date}'")
 
     # get data
     rows = 0
@@ -100,7 +101,7 @@ def upload_deliveries(start_date, pg_schema, pg_table_dwh):
             start = str(datetime.strptime(start, '%Y-%m-%d %H:%M:%S.%f').replace(microsecond=0) + timedelta(seconds = 1))
         else:
             start = str(datetime.strptime(start, '%Y-%m-%d %H:%M:%S') + timedelta(seconds = 1))
-
+                  
 # params for dag
 default_args = {
     'owner':'maks',
@@ -121,7 +122,8 @@ upload_deliveries = PythonOperator(
             task_id = 'api_deliveries',
             python_callable = upload_deliveries,
             op_kwargs = {
-                'start_date' : local_ds,
+                'prev_date' : prev_local_ds,
+                'today_date' : local_ds,
                 'pg_schema' : 'prod_dv_stg',
                 'pg_table_dwh' : 'couriers_system_deliveries',
             },
