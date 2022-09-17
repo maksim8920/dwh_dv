@@ -8,7 +8,7 @@ WITH drop_orders as
 		prod_dv_dds.h_orders AS ddo 
 			ON so.object_id = ddo.order_id_bk 
 	WHERE 
-		(so.object_value::JSON->>'date')::date = '{{ dag.timezone.convert(execution_date).strftime("%Y-%m-%d") }}')
+		(so.object_value::JSON->>'date')::date BETWEEN '{{ dag.timezone.convert(prev_execution_date).strftime("%Y-%m-%d") }}' AND '{{ dag.timezone.convert(execution_date).strftime("%Y-%m-%d") }}')
 DELETE FROM prod_dv_dds.s_orders WHERE order_id_dwh IN (SELECT order_id_dwh FROM drop_orders);
 
 -- insert rows
