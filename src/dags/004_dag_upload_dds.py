@@ -258,7 +258,6 @@ with TaskGroup(group_id = 'update_links', dag=dag) as update_links:
                 task_id = 'clear_temp',
                 postgres_conn_id = pg_dwh,
                 sql = 'sql/dv/links/02_clear_temp_tables.sql',
-                trigger_rule='dummy',
                 dag = dag
     )
     [order_items, order_bonuses] >> l_orders >> clear_temp
@@ -302,7 +301,6 @@ with TaskGroup(group_id = 'update_satellites', dag=dag) as update_satellites:
                 task_id = f"clear_temp",
                 postgres_conn_id = pg_dwh,
                 sql = f"sql/dv/satellites/s_products/02_clear_temp_table.sql",
-                trigger_rule='dummy', 
                 dag = dag
             )
         get_products >> upd_products >> clear_temp
