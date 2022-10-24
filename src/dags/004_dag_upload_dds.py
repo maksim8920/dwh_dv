@@ -196,9 +196,31 @@ default_args = {
 dag = DAG('04_dag_upload_dds',
         start_date=pendulum.datetime(2022, 8, 27, tz=local_tz),
         catchup=True,
-        schedule_interval='30 0 * * *',
+        schedule_interval='5 0 * * *',
         max_active_runs=1,
         default_args=default_args)
+
+with TaskGroup(group_id = 'check_stg', dag=dag) as check_stg:
+
+    check_mongo = ExternalTaskSensor(
+            task_id = 'check_mongo',
+            external_dag_id = '01_dag_upload_stage_from_mongo',
+            external_task_id = None,
+            dag = dag
+            )
+    
+    check_pg = ExternalTaskSensor(
+            task_id = 'check_pg',
+            external_dag_id = '02_dag_upload_stage_from_pg',
+            dag = dag
+            )
+
+    check_api = ExternalTaskSensor(
+            task_id = 'check_api',
+            external_dag_id = '03_dag_upload_stage_from_api',
+            external_task_id = None,
+            dag = dag
+            )
 
 with TaskGroup(group_id = 'update_hubs', dag=dag) as update_hubs:
 
@@ -307,4 +329,4 @@ with TaskGroup(group_id = 'update_satellites', dag=dag) as update_satellites:
 
     [s_upd, s_products]
 
-update_hubs >> [update_links, update_satellites]
+check_stg >> update_hubs >> [update_links, update_satellites]
