@@ -39,9 +39,6 @@ CREATE TABLE IF NOT EXISTS prod_dv_dds.l_orders(
 	CONSTRAINT l_orders_unique UNIQUE (order_id_dwh, product_id_dwh)
 );
 
-CREATE INDEX l_orders_order_id_dwh_idx ON prod_dv_dds.l_orders(order_id_dwh);
-CREATE INDEX l_orders_product_id_dwh_idx ON prod_dv_dds.l_orders(product_id_dwh);
-
 -- SATELLITES
 
 
@@ -61,10 +58,6 @@ CREATE TABLE IF NOT EXISTS prod_dv_dds.s_products(
 	active_to TIMESTAMP NOT NULL
 );
 
-CREATE INDEX s_products_product_category_idx ON prod_dv_dds.s_products(product_category);
-CREATE INDEX s_products_active_from_idx ON prod_dv_dds.s_products(active_from);
-CREATE INDEX s_products_active_to_idx ON prod_dv_dds.s_products(active_to);
-
 CREATE TABLE IF NOT EXISTS prod_dv_dds.s_users(
 	user_id_dwh INTEGER NOT NULL REFERENCES prod_dv_dds.h_users(user_id_dwh),
 	user_name VARCHAR(100) NOT NULL,
@@ -73,8 +66,6 @@ CREATE TABLE IF NOT EXISTS prod_dv_dds.s_users(
 	active_to TIMESTAMP NOT NULL	
 );
 
-CREATE INDEX s_users_active_from_idx ON prod_dv_dds.s_users(active_from);
-CREATE INDEX s_users_active_to_idx ON prod_dv_dds.s_users(active_to);
 
 CREATE TABLE IF NOT EXISTS prod_dv_dds.s_couriers(
 	courier_id_dwh INTEGER NULL REFERENCES prod_dv_dds.h_couriers(courier_id_dwh),
@@ -93,5 +84,3 @@ CREATE TABLE IF NOT EXISTS prod_dv_dds.s_orders(
 	order_deliviring_ts TIMESTAMP NULL	
 );
 
-CREATE INDEX s_couriers_order_create_ts_idx ON prod_dv_dds.s_orders(order_create_ts);
-CREATE INDEX s_couriers_order_deliviring_ts_idx ON prod_dv_dds.s_orders(order_deliviring_ts);
