@@ -14,7 +14,7 @@ task_logger = logging.getLogger('airflow.task')
 # tz params
 local_tz = pendulum.timezone("Europe/Moscow")
 local_ds = '{{ dag.timezone.convert(execution_date).strftime("%Y-%m-%d") }}'
-prev_local_ds = '{{ dag.timezone.convert(prev_execution_date).strftime("%Y-%m-%d") }}'
+prev_local_ds = '{{ dag.timezone.convert(yesterday_ds).strftime("%Y-%m-%d") }}'
 
 # connections
 api_conn = BaseHook.get_connection('http_conn_id')
@@ -71,9 +71,9 @@ def upload_deliveries(prev_date, today_date, pg_schema, pg_table_dwh):
     dwh_hook.run(sql = f"DELETE FROM {pg_schema}.{pg_table_dwh} WHERE order_ts::date BETWEEN '{prev_date}' AND '{today_date}'")
 
     # get data
-    rows = 0
+    offset = 0
     while True:    
-        deliver_rep = requests.get(f'https://{base_url}{method_deliveries}/?sort_field=order_ts&sort_direction=asc&from={start}&to={end}',
+        deliver_rep = requests.get(f'https://{base_url}{method_deliveries}/?sort_field=order_ts&sort_direction=asc&from={start}&to={end}&offset={offset}',
                             headers = params).json()
 
         # check data
@@ -81,7 +81,7 @@ def upload_deliveries(prev_date, today_date, pg_schema, pg_table_dwh):
             conn.commit()
             cursor.close()
             conn.close()
-            task_logger.info(f'Writting {rows} rows')
+            task_logger.info(f'Writting {offset} rows')
             break
 
         # writting to dwh 
@@ -91,16 +91,7 @@ def upload_deliveries(prev_date, today_date, pg_schema, pg_table_dwh):
         sql = f"INSERT INTO {pg_schema}.{pg_table_dwh} ({columns}) VALUES %s"
         execute_values(cursor, sql, values)
 
-        rows += len(deliver_rep)  
-
-        #change start
-        start = deliver_rep[-1]['order_ts']
-
-        # for ms and without ms
-        if len(start) > 19:
-            start = str(datetime.strptime(start, '%Y-%m-%d %H:%M:%S.%f').replace(microsecond=0) + timedelta(seconds = 1))
-        else:
-            start = str(datetime.strptime(start, '%Y-%m-%d %H:%M:%S') + timedelta(seconds = 1))
+        offset += len(deliver_rep)  
                   
 # params for dag
 default_args = {
@@ -131,7 +122,6 @@ upload_deliveries = PythonOperator(
 )
 
 
-'''
 upload_couriers = PythonOperator(
     task_id = 'upload_couriers',
     python_callable = upload_couriers,
@@ -144,7 +134,4 @@ upload_couriers = PythonOperator(
 )
 [upload_deliveries, upload_couriers]
 
-'''
-
-upload_deliveries
 
